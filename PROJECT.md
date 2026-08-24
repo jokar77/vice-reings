@@ -59,10 +59,10 @@ Vice Shores Mobile is a native React Native application built with Expo (TypeScr
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
 | M1 | Toolchain, Project Setup & Test Infrastructure | Configure package.json, app.json, tsconfig.json, babel.config.js, metro.config.js, jest.config.js, jest.setup.js, install dependencies | none | DONE |
-| M2 | Dual Protagonist Core State, Deck & Game Engine | Types, constants/deck, Zustand store with AsyncStorage, deck filter, dual switching, game over & legacy | M1 | IN_PROGRESS |
-| M3 | Visuals, SVG Portraits & Gesture Card UI | SVG portrait generator, Reanimated card stack with Gesture Handler, HUD gauges, dynamic backgrounds | M2 | PLANNED |
-| M4 | Empire Hub, Game Over & Screen Flow | Empire Hub modal, gear toggle, card history list, Game Over screen, New Gen flow, App root integration | M3 | PLANNED |
-| M5 | E2E Verification, Build Export & Hardening | Full test pass across Tiers 1-4, `npx expo export` bundling, Challenger stress testing, Forensic Audit | M4 | PLANNED |
+| M2 | Dual Protagonist Core State, Deck & Game Engine | Types, constants/deck, Zustand store with AsyncStorage, deck filter, dual switching, game over & legacy | M1 | DONE |
+| M3 | Visuals, SVG Portraits & Gesture Card UI | SVG portrait generator, Reanimated card stack with Gesture Handler, HUD gauges, dynamic backgrounds | M2 | DONE |
+| M4 | Empire Hub, Game Over & Screen Flow | Empire Hub modal, gear toggle, card history list, Game Over screen, New Gen flow, App root integration | M3 | DONE |
+| M5 | E2E Verification, Build Export & Hardening | Full test pass across Tiers 1-4, `npx expo export` bundling, Challenger stress testing, Forensic Audit | M4 | DONE |
 
 ## Code Layout
 ```

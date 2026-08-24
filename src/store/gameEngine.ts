@@ -112,6 +112,7 @@ export const handlePartnerDemise = (
   isGameOver: boolean;
   transitionCard?: GameCard;
   ending?: EndingCause;
+  bufferedStats?: EmpireStats;
 } => {
   const activeKey = state.activePartner;
   const isJailed = fatalStat === 'policia' && extreme === 'high';
@@ -137,7 +138,12 @@ export const handlePartnerDemise = (
   const fallenPartner = activeKey === 'partnerA' ? updatedPartnerA : updatedPartnerB;
 
   if (survivorPartner.status === 'alive') {
-    // Companion is alive -> Auto-switch to survivor and deliver survival narrative card
+    // Companion is alive -> Auto-switch to survivor and buffer fatal stat
+    const bufferedStats: EmpireStats = {
+      ...state.stats,
+      [fatalStat]: extreme === 'low' ? 25 : 75,
+    };
+
     const transitionCard: GameCard = {
       id: `transition_demise_${state.turn}_${Date.now()}`,
       w: 'camila',
@@ -160,6 +166,7 @@ export const handlePartnerDemise = (
       newActivePartner: survivorKey,
       isGameOver: false,
       transitionCard,
+      bufferedStats,
     };
   }
 

@@ -38,18 +38,18 @@ export const useGameStore = create<GameStoreState>()(
         if (state.gameOver || !state.currentCard) return;
 
         const currentCard = state.currentCard;
-        const choice = currentCard[direction];
+        const choice = direction === 'left' ? currentCard.l : currentCard.r;
         const newStats = applyChoiceDeltas(state.stats, choice.fx);
 
         // Update narrative and legacy flags
         const newFlags = { ...state.flags };
         if (choice.fx.set) {
-          choice.fx.set.forEach((f) => {
+          choice.fx.set.forEach((f: string) => {
             newFlags[f] = true;
           });
         }
         if (choice.fx.legado) {
-          choice.fx.legado.forEach((f) => {
+          choice.fx.legado.forEach((f: string) => {
             newFlags[f] = true;
           });
         }
@@ -118,8 +118,10 @@ export const useGameStore = create<GameStoreState>()(
 
           // Companion survives -> Switch active partner and display survival transition card
           const transitionCard = demiseResult.transitionCard!;
+          const finalStats = demiseResult.bufferedStats ?? newStats;
+
           set({
-            stats: newStats,
+            stats: finalStats,
             flags: newFlags,
             turn: state.turn + 1,
             moneyLaundered: newMoneyLaundered,
