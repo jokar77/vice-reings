@@ -21,6 +21,9 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": []
+    "plugins": [],
+    "experiments": {
+      "baseUrl": "/vice-reings"
+    }
   }
 }
