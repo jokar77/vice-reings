@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Vice Shores",
+    "slug": "vice-shores-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0A1A",
+    "splash": {
+      "backgroundColor": "#0A0A1A",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0A1A"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": []
+  }
+}
