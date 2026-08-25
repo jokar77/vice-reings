@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   GameCard,
   GameStoreState,
-  HistoryEntry,
+  RunHistoryEntry,
   PartnerId,
 } from '../types/game';
 import { INITIAL_DECK } from '../constants/deck';
@@ -61,23 +61,6 @@ export const useGameStore = create<GameStoreState>()(
           newMoneyLaundered += choice.fx.dinero * multiplier;
         }
 
-        // Add history log entry (bounded to latest 50 entries)
-        const historyEntry: HistoryEntry = {
-          id: `hist_${state.turn}_${Date.now()}`,
-          cardId: currentCard.id,
-          character: currentCard.w,
-          characterName: getCharacter(currentCard.w).name,
-          text: currentCard.t,
-          choiceText: choice.t,
-          direction,
-          partnerId: state.activePartner,
-          partnerName: state[state.activePartner].name,
-          statDeltas: choice.fx,
-          timestamp: Date.now(),
-        };
-
-        const updatedHistory = [historyEntry, ...state.history].slice(0, 50);
-
         // Check for stat boundary fatality (0 or 100)
         const fatality = checkStatFatalities(newStats);
 
@@ -93,6 +76,17 @@ export const useGameStore = create<GameStoreState>()(
           );
 
           if (demiseResult.isGameOver) {
+            const runHistoryEntry: RunHistoryEntry = {
+              id: `run_${state.generation}_${Date.now()}`,
+              generation: state.generation,
+              yearsInPower: state.turn,
+              moneyLaundered: newMoneyLaundered,
+              causeOfDeath: demiseResult.ending?.title || 'Caída del Imperio',
+              timestamp: Date.now(),
+            };
+
+            const updatedRunHistory = [runHistoryEntry, ...state.runHistory];
+
             const finalState = {
               ...state,
               stats: newStats,
@@ -103,7 +97,7 @@ export const useGameStore = create<GameStoreState>()(
               partnerB: demiseResult.updatedPartnerB,
               activeEnding: demiseResult.ending || null,
               gameOver: true,
-              history: updatedHistory,
+              runHistory: updatedRunHistory,
             };
 
             const legacyReport = calculateLegacy(finalState);
@@ -130,7 +124,6 @@ export const useGameStore = create<GameStoreState>()(
             activePartner: demiseResult.newActivePartner,
             currentCard: transitionCard,
             seenCardIds: [...state.seenCardIds, transitionCard.id],
-            history: updatedHistory,
             gameOver: false,
           });
           return;
@@ -168,35 +161,7 @@ export const useGameStore = create<GameStoreState>()(
           activePartner: nextPartner,
           currentCard: nextCard,
           seenCardIds: [...updatedSeenIds, nextCard.id],
-          history: updatedHistory,
         });
-      },
-
-      switchPartnerManually: () => {
-        const state = get();
-        if (
-          state.partnerA.status === 'alive' &&
-          state.partnerB.status === 'alive' &&
-          !state.gameOver
-        ) {
-          const nextPartner: PartnerId =
-            state.activePartner === 'partnerA' ? 'partnerB' : 'partnerA';
-          const eligiblePool = getEligibleCards(
-            INITIAL_DECK,
-            nextPartner,
-            state.flags,
-            state.seenCardIds
-          );
-          const nextCard =
-            eligiblePool[Math.floor(Math.random() * eligiblePool.length)] ||
-            INITIAL_DECK[0];
-
-          set({
-            activePartner: nextPartner,
-            currentCard: nextCard,
-            seenCardIds: [...state.seenCardIds, nextCard.id],
-          });
-        }
       },
 
       openEmpireHub: () => set({ isEmpireHubOpen: true }),
@@ -224,7 +189,7 @@ export const useGameStore = create<GameStoreState>()(
         generation: state.generation,
         turn: state.turn,
         moneyLaundered: state.moneyLaundered,
-        history: state.history,
+        runHistory: state.runHistory,
         currentCard: state.currentCard,
         seenCardIds: state.seenCardIds,
         gameOver: state.gameOver,

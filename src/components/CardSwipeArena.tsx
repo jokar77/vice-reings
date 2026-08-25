@@ -13,10 +13,15 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
+  withSequence,
+  withRepeat,
   interpolate,
   Extrapolation,
   runOnJS,
+  cancelAnimation,
 } from 'react-native-reanimated';
+import { useEffect, useRef } from 'react';
 import { GameCard } from '../types/game';
 import { getCharacter } from '../constants/characters';
 import { COLORS } from '../constants/theme';
@@ -54,7 +59,35 @@ export const CardSwipeArena: React.FC<CardSwipeArenaProps> = ({
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const idleRotate = useSharedValue(0);
   const isDragging = useSharedValue(false);
+  const idleTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const resetIdleTimer = () => {
+    if (idleTimer.current) clearTimeout(idleTimer.current);
+    cancelAnimation(idleRotate);
+    idleRotate.value = 0;
+
+    idleTimer.current = setTimeout(() => {
+      // Balanceo leve si no se toca en 15 segundos
+      idleRotate.value = withRepeat(
+        withSequence(
+          withTiming(2, { duration: 300 }),
+          withTiming(-2, { duration: 600 }),
+          withTiming(0, { duration: 300 })
+        ),
+        -1, // infinito
+        true
+      );
+    }, 15000);
+  };
+
+  useEffect(() => {
+    resetIdleTimer();
+    return () => {
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
+  }, [card?.id]); // reset on new card
 
   const executeChoice = (direction: 'left' | 'right') => {
     triggerChoiceCommitHaptic();
@@ -65,11 +98,13 @@ export const CardSwipeArena: React.FC<CardSwipeArenaProps> = ({
     executeChoice(direction);
     translateX.value = 0;
     translateY.value = 0;
+    resetIdleTimer();
   };
 
   const panGesture = Gesture.Pan()
     .onBegin(() => {
       isDragging.value = true;
+      runOnJS(resetIdleTimer)();
       runOnJS(triggerCardDragHaptic)();
     })
     .onUpdate((event) => {
@@ -89,18 +124,20 @@ export const CardSwipeArena: React.FC<CardSwipeArenaProps> = ({
     });
 
   const animatedCardStyle = useAnimatedStyle(() => {
-    const rotate = interpolate(
+    const swipeRotate = interpolate(
       translateX.value,
       [-SCREEN_WIDTH * 0.7, 0, SCREEN_WIDTH * 0.7],
       [-14, 0, 14],
       Extrapolation.CLAMP
     );
 
+    const finalRotate = swipeRotate + idleRotate.value;
+
     return {
       transform: [
         { translateX: translateX.value },
         { translateY: translateY.value },
-        { rotate: `${rotate}deg` },
+        { rotate: `${finalRotate}deg` },
       ],
     };
   });
@@ -226,33 +263,6 @@ export const CardSwipeArena: React.FC<CardSwipeArenaProps> = ({
             </View>
           </Animated.View>
         </GestureDetector>
-      </View>
-
-      {/* Fallback Bottom Tap Buttons */}
-      <View style={styles.buttonsRow}>
-        <TouchableOpacity
-          testID="btn-choice-left"
-          activeOpacity={0.7}
-          onPress={() => executeChoice('left')}
-          style={[styles.choiceButton, styles.choiceButtonLeft]}
-        >
-          <Text style={styles.buttonDirectionTag}>← IZQUIERDA</Text>
-          <Text style={styles.buttonTextLeft} numberOfLines={2}>
-            {card.l.t}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          testID="btn-choice-right"
-          activeOpacity={0.7}
-          onPress={() => executeChoice('right')}
-          style={[styles.choiceButton, styles.choiceButtonRight]}
-        >
-          <Text style={styles.buttonDirectionTag}>DERECHA →</Text>
-          <Text style={styles.buttonTextRight} numberOfLines={2}>
-            {card.r.t}
-          </Text>
-        </TouchableOpacity>
       </View>
     </View>
   );

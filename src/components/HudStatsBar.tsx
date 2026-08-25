@@ -74,7 +74,7 @@ const StatGauge: React.FC<{
       {/* Icon & Label Header */}
       <View style={styles.gaugeHeader}>
         <View style={styles.iconWrapper}>
-          <Svg width={14} height={14} viewBox="0 0 16 16">
+          <Svg width={18} height={18} viewBox="0 0 16 16">
             <Path
               d={stat.svgPath}
               fill={stat.svgStroke ? 'none' : stat.color}
@@ -86,27 +86,29 @@ const StatGauge: React.FC<{
           </Svg>
         </View>
         <Text style={styles.statLabel}>{stat.name}</Text>
-        <Text
-          testID={`stat-val-${stat.key}`}
-          style={[styles.statValue, { color: stat.color }]}
-        >
-          {clampedVal}
-        </Text>
       </View>
 
-      {/* Progress Track */}
+      {/* Progress Track (Vertical) */}
       <View style={styles.trackBackground}>
         <View
           testID={`stat-bar-${stat.key}`}
           style={[
             styles.trackFill,
             {
-              width: `${clampedVal}%`,
+              height: `${clampedVal}%`,
               backgroundColor: inDanger ? COLORS.blood : stat.color,
             },
           ]}
         />
       </View>
+
+      {/* Value */}
+      <Text
+        testID={`stat-val-${stat.key}`}
+        style={[styles.statValue, { color: stat.color }]}
+      >
+        {clampedVal}
+      </Text>
 
       {/* Danger Pulsing Indicator */}
       {inDanger && (
@@ -165,57 +167,61 @@ const styles = StyleSheet.create({
   },
   gaugeContainer: {
     flex: 1,
-    marginHorizontal: 3,
-    backgroundColor: 'rgba(10, 10, 26, 0.65)',
-    borderRadius: 6,
-    paddingHorizontal: 5,
-    paddingVertical: 4,
+    marginHorizontal: 4,
+    backgroundColor: 'rgba(10, 10, 26, 0.75)',
+    borderRadius: 8,
+    paddingHorizontal: 4,
+    paddingVertical: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
     position: 'relative',
+    height: 100, // Fixed height for vertical layout
   },
   gaugeContainerDanger: {
     borderColor: COLORS.blood,
     backgroundColor: 'rgba(255, 0, 85, 0.15)',
   },
   gaugeHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 3,
+    justifyContent: 'center',
+    marginBottom: 4,
   },
   iconWrapper: {
-    width: 14,
-    height: 14,
+    width: 18,
+    height: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 2,
+    marginBottom: 2,
   },
   statLabel: {
     fontSize: 9,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textLight,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    flex: 1,
-    marginLeft: 2,
+    textAlign: 'center',
+    display: 'none', // Hide label to save space, rely on icon
   },
   statValue: {
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontSize: 12,
+    fontWeight: '900',
     fontVariant: ['tabular-nums'],
+    marginTop: 4,
   },
   trackBackground: {
-    height: 5,
+    width: 10,
+    flex: 1, // Take remaining height
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 3,
+    borderRadius: 5,
     overflow: 'hidden',
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.05)',
+    justifyContent: 'flex-end', // Fill from bottom to top
   },
   trackFill: {
-    height: '100%',
-    borderRadius: 3,
+    width: '100%',
+    borderRadius: 5,
   },
   dangerBadge: {
     position: 'absolute',

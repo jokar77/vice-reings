@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {
   EmpireStats,
-  HistoryEntry,
+  RunHistoryEntry,
   PartnerState,
   StatModifiers,
 } from '../types/game';
@@ -23,7 +23,7 @@ export interface EmpireHubModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   onReset?: () => void;
-  history?: HistoryEntry[];
+  runHistory?: RunHistoryEntry[];
   stats?: EmpireStats;
   generation?: number;
   turn?: number;
@@ -85,7 +85,7 @@ export const EmpireHubModal: React.FC<EmpireHubModalProps> = ({
   isOpen: propsIsOpen,
   onClose,
   onReset,
-  history: propsHistory,
+  runHistory: propsHistory,
   stats: propsStats,
   generation: propsGeneration,
   turn: propsTurn,
@@ -98,7 +98,7 @@ export const EmpireHubModal: React.FC<EmpireHubModalProps> = ({
   const storeIsOpen = useGameStore((s) => s.isEmpireHubOpen);
   const storeClose = useGameStore((s) => s.closeEmpireHub);
   const storeReset = useGameStore((s) => s.resetGame);
-  const storeHistory = useGameStore((s) => s.history);
+  const storeHistory = useGameStore((s) => s.runHistory);
   const storeStats = useGameStore((s) => s.stats);
   const storeGeneration = useGameStore((s) => s.generation);
   const storeTurn = useGameStore((s) => s.turn);
@@ -107,7 +107,7 @@ export const EmpireHubModal: React.FC<EmpireHubModalProps> = ({
   const storePartnerB = useGameStore((s) => s.partnerB);
 
   const visible = propsIsOpen !== undefined ? propsIsOpen : storeIsOpen;
-  const history = propsHistory !== undefined ? propsHistory : storeHistory;
+  const runHistory = propsHistory !== undefined ? propsHistory : storeHistory;
   const generation = propsGeneration !== undefined ? propsGeneration : storeGeneration;
   const turn = propsTurn !== undefined ? propsTurn : storeTurn;
   const moneyLaundered =
@@ -263,90 +263,48 @@ export const EmpireHubModal: React.FC<EmpireHubModalProps> = ({
               </View>
             </View>
 
-            {/* Section 2: Recent Cards History (Last 50) */}
+            {/* Section 2: Run History */}
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>HISTORIAL DE DECISIONES</Text>
+                <Text style={styles.sectionTitle}>HISTORIAL DE PARTIDAS</Text>
                 <Text style={styles.historyCountBadge}>
-                  {history.length} / 50
+                  {runHistory.length}
                 </Text>
               </View>
 
-              {history.length === 0 ? (
+              {runHistory.length === 0 ? (
                 <View testID="history-empty-view" style={styles.emptyHistoryBox}>
                   <Text style={styles.emptyHistoryText}>
-                    No hay decisiones registradas en este período.
+                    Aún no hay partidas completadas.
                   </Text>
                 </View>
               ) : (
                 <View testID="history-list" style={styles.historyList}>
-                  {history.map((item, index) => {
-                    const isLeft = item.direction === 'left';
-                    const choiceColor = isLeft ? COLORS.blood : COLORS.aqua;
-                    const deltas = item.statDeltas || {};
-
+                  {runHistory.map((run, index) => {
                     return (
                       <View
-                        key={item.id || `hist-${index}`}
-                        testID={`history-item-${item.id}`}
+                        key={run.id || `run-${index}`}
+                        testID={`history-item-${run.id}`}
                         style={styles.historyItemCard}
                       >
-                        {/* History Card Header */}
                         <View style={styles.historyItemHeader}>
-                          <View style={styles.historySpeakerWrapper}>
-                            <Text
-                              testID={`history-speaker-${item.id}`}
-                              style={styles.historySpeakerName}
-                            >
-                              {item.characterName || item.character}
-                            </Text>
-                            <Text style={styles.historyPartnerActor}>
-                              vía {item.partnerName}
-                            </Text>
-                          </View>
-                          <View
-                            style={[
-                              styles.directionBadge,
-                              { borderColor: choiceColor },
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.directionBadgeText,
-                                { color: choiceColor },
-                              ]}
-                            >
-                              {isLeft ? '← IZQ' : 'DER →'}
-                            </Text>
-                          </View>
-                        </View>
-
-                        {/* Narrative dialogue text */}
-                        <Text style={styles.historyPromptText}>«{item.text}»</Text>
-
-                        {/* Choice made */}
-                        <View style={styles.historyChoiceBox}>
-                          <Text style={styles.historyChoiceLabel}>Elección:</Text>
-                          <Text
-                            testID={`history-choice-${item.id}`}
-                            style={[
-                              styles.historyChoiceValue,
-                              { color: choiceColor },
-                            ]}
-                          >
-                            {item.choiceText}
+                          <Text style={styles.historySpeakerName}>
+                            Generación {run.generation}
                           </Text>
+                          <View style={styles.directionBadge}>
+                            <Text style={styles.directionBadgeText}>
+                              {run.yearsInPower} AÑOS
+                            </Text>
+                          </View>
                         </View>
-
-                        {/* Stat Deltas */}
-                        <View
-                          testID={`history-deltas-${item.id}`}
-                          style={styles.deltasRow}
-                        >
-                          {renderStatDeltaBadge('Dinero', deltas.dinero, true)}
-                          {renderStatDeltaBadge('Búsqueda', deltas.policia, false)}
-                          {renderStatDeltaBadge('Estrés', deltas.estres, false)}
-                          {renderStatDeltaBadge('Reputación', deltas.respeto, true)}
+                        <Text style={styles.historyPromptText}>
+                          Causa de caída: {run.causeOfDeath}
+                        </Text>
+                        <View style={styles.historyChoiceBox}>
+                          <Text style={styles.historyChoiceLabel}>Dinero final:</Text>
+                          <Text style={[styles.historyChoiceValue, { color: COLORS.amber }]}>
+                            {formatCurrency(run.moneyLaundered)}
+                          </Text>
                         </View>
                       </View>
                     );
@@ -364,7 +322,7 @@ export const EmpireHubModal: React.FC<EmpireHubModalProps> = ({
               activeOpacity={0.7}
               onPress={handleReset}
             >
-              <Text style={styles.resetButtonText}>REINICIAR PARTIDA</Text>
+              <Text style={styles.resetButtonText}>REINICIAR TODO</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

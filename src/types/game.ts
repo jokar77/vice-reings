@@ -73,17 +73,12 @@ export interface PartnerState {
   deathCause?: string;
 }
 
-export interface HistoryEntry {
+export interface RunHistoryEntry {
   id: string;
-  cardId: string;
-  character: CharacterId;
-  characterName: string;
-  text: string;
-  choiceText: string;
-  direction: 'left' | 'right';
-  partnerId: PartnerId;
-  partnerName: string;
-  statDeltas: StatModifiers;
+  generation: number;
+  yearsInPower: number;
+  moneyLaundered: number;
+  causeOfDeath: string;
   timestamp: number;
 }
 
@@ -116,7 +111,7 @@ export interface GameState {
   generation: number;
   turn: number;
   moneyLaundered: number;
-  history: HistoryEntry[];
+  runHistory: RunHistoryEntry[];
   currentCard: GameCard | null;
   seenCardIds: string[];
   gameOver: boolean;
@@ -128,7 +123,6 @@ export interface GameState {
 export interface GameStoreState extends GameState {
   initGame: () => void;
   makeChoice: (direction: 'left' | 'right') => void;
-  switchPartnerManually: () => void;
   openEmpireHub: () => void;
   closeEmpireHub: () => void;
   startNewGeneration: () => void;

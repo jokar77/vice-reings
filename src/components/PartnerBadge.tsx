@@ -44,7 +44,6 @@ export const PartnerBadge: React.FC<PartnerBadgeProps> = ({
   const storeActive = useGameStore((s) => s.activePartner);
   const storePartnerA = useGameStore((s) => s.partnerA);
   const storePartnerB = useGameStore((s) => s.partnerB);
-  const storeSwitch = useGameStore((s) => s.switchPartnerManually);
 
   const active = propsActive || storeActive || 'partnerA';
   const pA = propsPartnerA || storePartnerA || {
@@ -64,18 +63,15 @@ export const PartnerBadge: React.FC<PartnerBadgeProps> = ({
 
   const currentPartner = active === 'partnerA' ? pA : pB;
   const partnerAccent = active === 'partnerA' ? COLORS.aqua : COLORS.blood;
-  const handlePress = onSwitchPartner || storeSwitch;
 
   const canSwitch = pA.status === 'alive' && pB.status === 'alive';
 
   return (
     <View testID={testID} style={[styles.container, style]}>
-      {/* Duo Selector Pills */}
+      {/* Duo Selector Pills (Visual Only) */}
       <View style={styles.selectorRow}>
-        <TouchableOpacity
+        <View
           testID="partner-tag-partnerA"
-          activeOpacity={canSwitch ? 0.7 : 1}
-          onPress={canSwitch && active !== 'partnerA' ? handlePress : undefined}
           style={[
             styles.partnerPill,
             active === 'partnerA' && styles.partnerPillActiveA,
@@ -100,12 +96,10 @@ export const PartnerBadge: React.FC<PartnerBadgeProps> = ({
           {pA.status !== 'alive' && (
             <Text style={styles.pillStatusTag}>[{getStatusLabel(pA.status)}]</Text>
           )}
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity
+        <View
           testID="partner-tag-partnerB"
-          activeOpacity={canSwitch ? 0.7 : 1}
-          onPress={canSwitch && active !== 'partnerB' ? handlePress : undefined}
           style={[
             styles.partnerPill,
             active === 'partnerB' && styles.partnerPillActiveB,
@@ -130,7 +124,7 @@ export const PartnerBadge: React.FC<PartnerBadgeProps> = ({
           {pB.status !== 'alive' && (
             <Text style={styles.pillStatusTag}>[{getStatusLabel(pB.status)}]</Text>
           )}
-        </TouchableOpacity>
+        </View>
       </View>
 
       {/* Active Protagonist Card Header Banner */}

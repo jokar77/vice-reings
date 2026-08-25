@@ -251,6 +251,21 @@ export const calculateLegacy = (state: GameState): LegacyReport => {
   };
 };
 
+export const INTRO_CARD: GameCard = {
+  id: 'intro_fianza',
+  w: 'camila',
+  t: 'He pagado tu fianza, Nico. Más vale que no vuelvas a cagarla o los del cártel nos cortarán el cuello a los dos.',
+  l: {
+    t: 'Gracias, salgamos de aquí',
+    fx: { estres: -5, respeto: 5 },
+  },
+  r: {
+    t: 'Yo tenía todo controlado',
+    fx: { estres: 5, respeto: -5 },
+  },
+  target: 'partnerA_only',
+};
+
 /**
  * Creates the initial state for Generation N+1 applying legacy modifiers.
  */
@@ -287,10 +302,6 @@ export const createNextGenerationState = (previousState: GameState): GameState =
   if (previousState.flags.bebida_legal) inheritedFlags.bebida_legal = true;
   if (previousState.flags.miedo_calle) inheritedFlags.miedo_calle = true;
 
-  const eligible = getEligibleCards(INITIAL_DECK, 'partnerA', inheritedFlags, []);
-  const rng = createMulberry32(hashSeed(`gen-${nextGen}-start`));
-  const startingCard = eligible[Math.floor(rng() * eligible.length)] || INITIAL_DECK[0];
-
   return {
     partnerA,
     partnerB,
@@ -300,9 +311,9 @@ export const createNextGenerationState = (previousState: GameState): GameState =
     generation: nextGen,
     turn: 1,
     moneyLaundered: previousState.moneyLaundered,
-    history: [],
-    currentCard: startingCard,
-    seenCardIds: [startingCard.id],
+    runHistory: previousState.runHistory || [],
+    currentCard: INTRO_CARD,
+    seenCardIds: [INTRO_CARD.id],
     gameOver: false,
     activeEnding: null,
     legacyReport: legacy,
@@ -314,10 +325,6 @@ export const createNextGenerationState = (previousState: GameState): GameState =
  * Creates a brand new Generation 1 Game State.
  */
 export const createInitialGameState = (): GameState => {
-  const eligible = getEligibleCards(INITIAL_DECK, 'partnerA', {}, []);
-  const rng = createMulberry32(hashSeed('gen-1-start'));
-  const startingCard = eligible[Math.floor(rng() * eligible.length)] || INITIAL_DECK[0];
-
   return {
     partnerA: { ...INITIAL_PARTNER_A },
     partnerB: { ...INITIAL_PARTNER_B },
@@ -327,9 +334,9 @@ export const createInitialGameState = (): GameState => {
     generation: 1,
     turn: 1,
     moneyLaundered: 0,
-    history: [],
-    currentCard: startingCard,
-    seenCardIds: [startingCard.id],
+    runHistory: [],
+    currentCard: INTRO_CARD,
+    seenCardIds: [INTRO_CARD.id],
     gameOver: false,
     activeEnding: null,
     legacyReport: null,
