@@ -16,9 +16,9 @@ import { createMulberry32, hashSeed } from '../utils/prng';
 
 export const INITIAL_STATS: EmpireStats = {
   dinero: 50,
-  policia: 30,
-  estres: 35,
-  respeto: 40,
+  policia: 50,
+  estres: 50,
+  respeto: 50,
 };
 
 /**
